@@ -9,6 +9,19 @@ import { generateContract } from '@/lib/llm';
 import { generatePDF } from '@/lib/pdf';
 import { uploadPDF } from '@/lib/storage';
 
+// Handle CORS preflight
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, Idempotency-Key',
+      'Access-Control-Max-Age': '86400',
+    },
+  });
+}
+
 export async function POST(req: NextRequest) {
   try {
     const user = await authenticateRequest(req);
@@ -41,7 +54,12 @@ export async function POST(req: NextRequest) {
 
     console.log('✅ Terms template created:', termsTemplate.id);
 
-    return NextResponse.json(termsTemplate, { status: 201 });
+    return NextResponse.json(termsTemplate, { 
+      status: 201,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+      }
+    });
   } catch (error: unknown) {
     console.error('POST /api/terms error:', error);
 

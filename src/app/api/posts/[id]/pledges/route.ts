@@ -61,7 +61,7 @@ export async function GET(
     });
 
     // Format response with public pledger data
-    const items = pledges.map((pledge) => {
+    const items = pledges.map((pledge: typeof pledges[0]) => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { email, auth0_sub, ...pledgerPublic } = pledge.pledger;
 
