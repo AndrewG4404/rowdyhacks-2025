@@ -1,0 +1,87 @@
+{
+  "common": {
+    "app_name": "GoLoanMe",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "search": "Search",
+    "filter": "Filter"
+  },
+  "nav": {
+    "home": "Home",
+    "explore": "Explore",
+    "create": "Create Post",
+    "wallet": "Wallet",
+    "profile": "Profile",
+    "circles": "Circles",
+    "admin": "Admin"
+  },
+  "auth": {
+    "login": "Log In",
+    "logout": "Log Out",
+    "signup": "Sign Up",
+    "welcome": "Welcome to GoLoanMe"
+  },
+  "categories": {
+    "medical": "Medical",
+    "funeral": "Funeral",
+    "fun": "For Fun",
+    "vet": "Vet Bills",
+    "education": "Education",
+    "community": "Community Projects",
+    "other": "Other"
+  },
+  "post": {
+    "title": "Title",
+    "description": "Description",
+    "category": "Category",
+    "goal": "Goal Amount",
+    "accept_contracts": "Accept contract pledges",
+    "status_open": "Open",
+    "status_closed": "Closed",
+    "create": "Create Post",
+    "update": "Update Post",
+    "delete": "Delete Post",
+    "funded": "Funded",
+    "donors": "Donors",
+    "sponsors": "Sponsors"
+  },
+  "pledge": {
+    "donate": "Donate",
+    "contract": "Contract Pledge",
+    "amount": "Amount (GLM)",
+    "note": "Note (optional)",
+    "terms": "Select Terms",
+    "create": "Create Pledge"
+  },
+  "wallet": {
+    "balance": "Balance",
+    "transactions": "Transactions",
+    "transfer": "Transfer",
+    "repayment": "Repayment"
+  },
+  "terms": {
+    "title": "Contract Title",
+    "interest": "Interest Rate (%)",
+    "cadence": "Repayment Schedule",
+    "grace_days": "Grace Period (days)",
+    "collateral": "Collateral",
+    "remedies": "Remedies",
+    "disclaimers": "Disclaimers",
+    "generate": "Generate Contract",
+    "my_terms": "My Terms"
+  },
+  "legal": {
+    "disclaimer": "⚠️ Simulated currency. Not financial or legal advice. Not a money transmitter.",
+    "educational": "Educational use only. No real obligations."
+  }
+}
+
