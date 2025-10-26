@@ -42,16 +42,18 @@ export async function GET(req: NextRequest) {
     }
 
     // Get ledger entries for user's account
+    const takeCount = (limit || 20) + 1;
+    
     const entries = await db.ledgerEntry.findMany({
       where: {
         accountId: account.id,
         ...cursorFilter,
       },
       orderBy: { createdAt: 'desc' },
-      take: limit + 1,
+      take: takeCount,
     });
 
-    const hasMore = entries.length > limit;
+    const hasMore = entries.length > (limit || 20);
     const items = hasMore ? entries.slice(0, -1) : entries;
     const nextCursor = hasMore ? items[items.length - 1]?.id : null;
 

@@ -1,7 +1,7 @@
 // GoLoanMe - PDF Generation
 // Generate PDFs from HTML using puppeteer on Vercel
 
-import puppeteer from 'puppeteer-core';
+import puppeteer from 'puppeteer';
 import chromium from '@sparticuz/chromium';
 
 /**
@@ -9,16 +9,33 @@ import chromium from '@sparticuz/chromium';
  * Uses chromium for serverless deployment on Vercel
  */
 export async function generatePDF(html: string): Promise<Buffer> {
+  // Always generate PDF, even in development
+  console.log('📄 Generating PDF from HTML...');
+
   let browser = null;
 
   try {
     // Launch browser (different config for local vs Vercel)
-    browser = await puppeteer.launch({
-      args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath(),
-      headless: chromium.headless,
-    });
+    const isVercel = process.env.VERCEL === '1';
+    
+    if (isVercel) {
+      // Vercel serverless environment - use chromium
+      console.log('Using chromium for Vercel environment');
+      browser = await puppeteer.launch({
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath(),
+        headless: chromium.headless,
+        ignoreHTTPSErrors: true,
+      });
+    } else {
+      // Local development - use regular puppeteer
+      console.log('Using puppeteer for local environment');
+      browser = await puppeteer.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      });
+    }
 
     const page = await browser.newPage();
 

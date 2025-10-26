@@ -2,25 +2,25 @@ import Link from 'next/link';
 import { Card } from '../ui/Card';
 import { Badge } from '../ui/Badge';
 import { ProgressBar } from '../ui/ProgressBar';
-import type { Post } from '@/types';
+import type { PostExtended } from '@/types';
 
 interface PostCardProps {
-  post: Post;
+  post: PostExtended;
 }
 
-const categoryColors = {
-  'Medical': 'bg-red-100 text-red-800',
-  'Funeral': 'bg-purple-100 text-purple-800',
-  'For fun': 'bg-yellow-100 text-yellow-800',
-  'Vet bills': 'bg-green-100 text-green-800',
-  'Education': 'bg-blue-100 text-blue-800',
-  'Community Projects': 'bg-indigo-100 text-indigo-800',
-  'Other': 'bg-gray-100 text-gray-800',
+const categoryColors: Record<string, string> = {
+  'medical': 'bg-red-100 text-red-800',
+  'funeral': 'bg-purple-100 text-purple-800',
+  'fun': 'bg-yellow-100 text-yellow-800',
+  'vet': 'bg-green-100 text-green-800',
+  'education': 'bg-blue-100 text-blue-800',
+  'community': 'bg-indigo-100 text-indigo-800',
+  'other': 'bg-gray-100 text-gray-800',
 };
 
 export function PostCard({ post }: PostCardProps) {
-  const totalRaised = post.totalRaised || 0;
-  const goal = post.goal || 0;
+  const totalRaised = post.totalRaised || post.stats?.fundedGLM || 0;
+  const goal = post.goal || post.goalGLM || 0;
   
   return (
     <Link href={`/posts/${post.id}`}>

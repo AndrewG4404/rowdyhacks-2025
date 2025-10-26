@@ -48,7 +48,7 @@ export default function ProfilePage({ params }: { params: { handle: string } }) 
             fontWeight: 'bold',
             color: '#6b7280'
           }}>
-            {mockUser.handle[0].toUpperCase()}
+            {mockUser.handle?.[0]?.toUpperCase() || 'U'}
           </div>
           <div style={{ flex: 1 }}>
             <h1 style={{ fontSize: '32px', fontWeight: 'bold', marginBottom: '8px', color: '#1f2937' }}>
