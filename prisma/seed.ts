@@ -106,11 +106,12 @@ async function main() {
   });
 
   // Create demo post
-  const bikePost = await db.post.upsert({
-    where: { id: 'demo_post_1' },
-    update: {},
-    create: {
-      id: 'demo_post_1',
+  const existingPost = await db.post.findFirst({
+    where: { ownerId: carmen.id, title: 'Bike for commuting to work' }
+  });
+  
+  const bikePost = existingPost || await db.post.create({
+    data: {
       ownerId: carmen.id,
       title: 'Bike for commuting to work',
       description: 'I need a reliable bicycle to commute to my new job. Public transit adds 2 hours to my day. A bike would save time and money.',
