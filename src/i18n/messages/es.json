@@ -20,6 +20,7 @@
     "explore": "Explorar",
     "create": "Crear Publicación",
     "wallet": "Cartera",
+    "terms": "Términos",
     "profile": "Perfil",
     "circles": "Círculos",
     "admin": "Admin"
@@ -52,7 +53,13 @@
     "delete": "Eliminar Publicación",
     "funded": "Financiado",
     "donors": "Donantes",
-    "sponsors": "Patrocinadores"
+    "sponsors": "Patrocinadores",
+    "open": "Abierto",
+    "closed": "Cerrado"
+  },
+  "posts": {
+    "noPosts": "No se encontraron publicaciones",
+    "createFirst": "¡Sé el primero en crear una publicación!"
   },
   "pledge": {
     "donate": "Donar",

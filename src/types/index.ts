@@ -76,6 +76,14 @@ export type PostWithOwner = Post & {
   stats?: PostStats;
 };
 
+// Extended Post type with additional frontend properties
+export type PostExtended = Post & {
+  owner?: UserPublic;
+  stats?: PostStats;
+  totalRaised?: number; // Alias for stats.fundedGLM
+  goal?: number; // Alias for goalGLM
+};
+
 export interface CreatePostInput {
   title: string;
   description: string;

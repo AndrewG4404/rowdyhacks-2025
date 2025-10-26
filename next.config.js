@@ -1,3 +1,7 @@
+const createNextIntlPlugin = require('next-intl/plugin');
+
+const withNextIntl = createNextIntlPlugin('./src/i18n/config.ts');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Experimental features
@@ -14,6 +18,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'res.cloudinary.com',
         pathname: '/dmh4epqqg/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**',
       },
     ],
   },
@@ -52,6 +60,4 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
-
-
+module.exports = withNextIntl(nextConfig);
