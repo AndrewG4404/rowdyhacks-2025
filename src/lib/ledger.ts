@@ -305,32 +305,6 @@ export async function createTransfer(
 }
 
 /**
- * Get post funding stats
- */
-export async function getPostStats(postId: string) {
-  const pledges = await db.pledge.findMany({
-    where: { postId },
-    include: {
-      pledger: true,
-    },
-  });
-
-  const fundedGLM = pledges.reduce((sum, p) => sum + p.amountGLM, 0);
-  const donors = new Set(
-    pledges.filter((p) => p.type === 'donation').map((p) => p.pledgerId)
-  ).size;
-  const sponsors = new Set(
-    pledges.filter((p) => p.type === 'contract').map((p) => p.pledgerId)
-  ).size;
-
-  return {
-    fundedGLM,
-    donors,
-    sponsors,
-  };
-}
-
-/**
  * Create repayment transfer (post owner -> sponsor)
  */
 export async function createRepayment(
