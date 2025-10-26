@@ -2,12 +2,13 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/lib/hooks';
+import { useAuth, useTermsSummary } from '@/lib/hooks';
 import { apiClient } from '@/lib/api-client';
 
 export default function CreateTermsPage() {
   const router = useRouter();
   const { token, isAuthenticated } = useAuth();
+  const { generateSummary, isLoading: isGeneratingSummary, data: summaryData } = useTermsSummary();
   
   const [formData, setFormData] = useState({
     title: '',
@@ -23,10 +24,37 @@ export default function CreateTermsPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [showSummary, setShowSummary] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handlePreviewSummary = async () => {
+    if (!formData.title) {
+      setError('Title is required for preview');
+      return;
+    }
+
+    try {
+      setError('');
+      const termsData = {
+        title: formData.title,
+        interestPercent: parseFloat(formData.interestPercent) || 0,
+        cadence: formData.cadence,
+        graceDays: parseInt(formData.graceDays) || 0,
+        collateralText: formData.collateralText || undefined,
+        remedies: formData.remedies || undefined,
+        disclaimers: formData.disclaimers || undefined,
+        locality: formData.locality || undefined,
+      };
+
+      await generateSummary(termsData);
+      setShowSummary(true);
+    } catch (err: any) {
+      setError(err.message || 'Failed to generate preview');
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -316,7 +344,71 @@ export default function CreateTermsPage() {
           </div>
         </div>
 
+        {showSummary && summaryData && (
+          <div style={{ 
+            background: 'white', 
+            borderRadius: '12px', 
+            boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+            padding: '30px',
+            marginBottom: '20px',
+            border: '2px solid #10b981'
+          }}>
+            <h3 style={{ 
+              fontSize: '20px', 
+              fontWeight: 'bold', 
+              color: '#10b981', 
+              marginBottom: '15px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              🤖 AI-Generated Summary Preview
+            </h3>
+            <div style={{ 
+              background: '#f0fdf4', 
+              border: '1px solid #bbf7d0', 
+              borderRadius: '8px', 
+              padding: '20px',
+              marginBottom: '15px'
+            }}>
+              <p style={{ 
+                color: '#166534', 
+                fontSize: '16px', 
+                lineHeight: '1.6',
+                margin: 0
+              }}>
+                {summaryData.summary}
+              </p>
+            </div>
+            <p style={{ 
+              color: '#6b7280', 
+              fontSize: '14px', 
+              fontStyle: 'italic',
+              margin: 0
+            }}>
+              This is a user-friendly summary of your contract terms. The full legal document will be more detailed and professional.
+            </p>
+          </div>
+        )}
+
         <div style={{ display: 'flex', gap: '15px' }}>
+          <button
+            type="button"
+            onClick={handlePreviewSummary}
+            disabled={isGeneratingSummary || isGenerating}
+            style={{
+              padding: '14px 20px',
+              background: isGeneratingSummary ? '#9ca3af' : '#10b981',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '16px',
+              fontWeight: 'bold',
+              cursor: (isGeneratingSummary || isGenerating) ? 'not-allowed' : 'pointer'
+            }}
+          >
+            {isGeneratingSummary ? '🤖 Generating Preview...' : '👁️ Preview Summary'}
+          </button>
           <button
             type="submit"
             disabled={isGenerating}

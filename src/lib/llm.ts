@@ -14,8 +14,9 @@ const DEMO_MODEL = 'demo-template';
 const SYSTEM_PROMPT = `You are an expert contract attorney specializing in community micro-funding agreements. Your task is to generate professional, legally-structured contract templates based on user inputs.
 
 CRITICAL REQUIREMENTS:
-- Output ONLY valid JSON with "html" and "schema" fields
-- Use formal legal language and structure
+- Output ONLY valid JSON with "html", "schema", and "summary" fields
+- Transform user inputs into professional legal language
+- Use formal legal terminology and structure
 - Include comprehensive legal sections and clauses
 - Ensure professional formatting and terminology
 - Include all necessary legal disclaimers and boilerplate
@@ -32,6 +33,13 @@ CONTRACT STRUCTURE REQUIREMENTS:
 8. Legal disclaimers and limitations
 9. Execution and signature blocks
 
+PROFESSIONAL LANGUAGE TRANSFORMATION:
+- Convert casual user inputs into formal legal language
+- Use proper legal terminology (e.g., "Principal Amount" instead of "amount")
+- Structure sentences with legal precision
+- Include standard legal boilerplate clauses
+- Ensure consistency in terminology throughout
+
 OUTPUT FORMAT (JSON only, no markdown):
 {
   "schema": {
@@ -47,7 +55,8 @@ OUTPUT FORMAT (JSON only, no markdown):
     "governingLaw": "...",
     "jurisdiction": "..."
   },
-  "html": "<div class='legal-contract'><header>...</header><section class='recitals'>...</section><section class='definitions'>...</section><section class='principal-terms'>...</section><section class='collateral'>...</section><section class='default-remedies'>...</section><section class='governing-law'>...</section><section class='disclaimers'>...</section><section class='execution'>...</section></div>"
+  "html": "<div class='legal-contract'><header>...</header><section class='recitals'>...</section><section class='definitions'>...</section><section class='principal-terms'>...</section><section class='collateral'>...</section><section class='default-remedies'>...</section><section class='governing-law'>...</section><section class='disclaimers'>...</section><section class='execution'>...</section></div>",
+  "summary": "A clear, user-friendly summary of the key terms in plain language"
 }`;
 
 /**
@@ -140,6 +149,7 @@ async function callOpenRouter(
     html: parsed.html,
     json: inputs,
     model,
+    summary: parsed.summary,
   };
 }
 
@@ -177,14 +187,22 @@ STYLE REQUIREMENTS:
 - Add comprehensive boilerplate clauses
 - Ensure professional appearance
 - Include all necessary legal protections
+- Transform casual user inputs into professional legal language
 
-Generate a complete, professional legal contract template. Output ONLY valid JSON.`;
+SUMMARY REQUIREMENTS:
+- Create a clear, user-friendly summary in plain language
+- Highlight key terms: amount, interest rate, repayment schedule, grace period
+- Explain what happens in case of default
+- Keep it concise but comprehensive
+- Use simple, accessible language
+
+Generate a complete, professional legal contract template with a user-friendly summary. Output ONLY valid JSON.`;
 }
 
 /**
  * Parse and validate LLM response
  */
-function parseContractResponse(content: string): { html: string; schema: Record<string, unknown> } {
+function parseContractResponse(content: string): { html: string; schema: Record<string, unknown>; summary: string } {
   // Remove markdown code blocks if present
   let cleaned = content.trim();
   if (cleaned.startsWith('```json')) {
@@ -200,15 +218,31 @@ function parseContractResponse(content: string): { html: string; schema: Record<
       throw new Error('Missing or invalid "html" field');
     }
 
+    // Generate a fallback summary if not provided
+    const summary = parsed.summary || generateFallbackSummary(parsed.schema || {});
+
     return {
       html: parsed.html,
       schema: parsed.schema || {},
+      summary,
     };
   } catch (error) {
     console.error('Failed to parse LLM response:', error);
     console.error('Raw content:', content);
     throw new Error('Invalid JSON response from LLM');
   }
+}
+
+/**
+ * Generate fallback summary from schema data
+ */
+function generateFallbackSummary(schema: Record<string, unknown>): string {
+  const interestPercent = schema.interestPercent || 0;
+  const cadence = schema.cadence || 'monthly';
+  const graceDays = schema.graceDays || 0;
+  const collateral = schema.collateral || 'None specified';
+  
+  return `This contract outlines a funding arrangement with ${interestPercent}% annual interest rate. Repayments are scheduled ${cadence} with a ${graceDays}-day grace period. Collateral includes: ${collateral}. In case of default, the remedies include pausing contributions, mediation, and repayment plan adjustments. This is for educational purposes only using simulated GLM credits.`;
 }
 
 /**
@@ -274,10 +308,13 @@ function generateDemoTemplate(inputs: TermsInputs): LLMGenerateResponse {
   </section>
 </div>`;
 
+  const summary = `This contract outlines a funding arrangement with ${inputs.interestPercent || 0}% annual interest rate. Repayments are scheduled ${inputs.cadence || 'monthly'} with a ${inputs.graceDays || 0}-day grace period. ${inputs.collateralText ? `Collateral includes: ${inputs.collateralText}.` : 'No collateral is specified.'} In case of default, the remedies include pausing contributions, mediation, and repayment plan adjustments. This is for educational purposes only using simulated GLM credits.`;
+
   return {
     html,
     json: inputs,
     model: DEMO_MODEL,
+    summary,
   };
 }
 

@@ -216,47 +216,31 @@ export function useMyTerms() {
   return { data, isLoading, error };
 }
 
-export function useTransactions() {
+export function useTermsSummary() {
   const { token } = useAuth();
   const [data, setData] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  useEffect(() => {
+  const generateSummary = async (inputs: any) => {
     if (!token) {
-      setIsLoading(false);
+      setError(new Error('Authentication required'));
       return;
     }
 
-    let mounted = true;
-
-    async function fetchTransactions() {
-      if (!token) return;
-      
-      try {
-        setIsLoading(true);
-        const result = await apiClient.getTransactions(token);
-        if (mounted) {
-          setData(result);
-          setError(null);
-        }
-      } catch (err) {
-        if (mounted) {
-          setError(err as Error);
-        }
-      } finally {
-        if (mounted) {
-          setIsLoading(false);
-        }
-      }
+    try {
+      setIsLoading(true);
+      setError(null);
+      const result = await apiClient.generateTermsSummary(token, inputs);
+      setData(result);
+      return result;
+    } catch (err) {
+      setError(err as Error);
+      throw err;
+    } finally {
+      setIsLoading(false);
     }
+  };
 
-    fetchTransactions();
-
-    return () => {
-      mounted = false;
-    };
-  }, [token]);
-
-  return { data, isLoading, error };
+  return { data, isLoading, error, generateSummary };
 }

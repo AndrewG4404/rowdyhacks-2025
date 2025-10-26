@@ -229,6 +229,7 @@ export interface LLMGenerateResponse {
   html: string;
   json: TermsInputs;
   model: string;
+  summary: string;
 }
 
 // ============================================
