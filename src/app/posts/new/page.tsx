@@ -1,20 +1,83 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/lib/hooks';
+import { apiClient } from '@/lib/api-client';
 
 export default function CreatePostPage() {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('Medical');
-  const [goal, setGoal] = useState('');
-  const [acceptContracts, setAcceptContracts] = useState(false);
+  const router = useRouter();
+  const { token, isAuthenticated } = useAuth();
   
-  const categories = ['Medical', 'Funeral', 'For fun', 'Vet bills', 'Education', 'Community Projects', 'Other'];
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    category: 'medical',
+    goalGLM: '',
+    acceptContracts: false
+  });
   
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    alert('Post creation will be implemented with backend integration');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
+
+  const categories = [
+    { value: 'medical', label: 'Medical' },
+    { value: 'funeral', label: 'Funeral' },
+    { value: 'fun', label: 'For Fun' },
+    { value: 'vet', label: 'Vet Bills' },
+    { value: 'education', label: 'Education' },
+    { value: 'community', label: 'Community Projects' },
+    { value: 'other', label: 'Other' }
+  ];
+  
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target;
+    
+    if (type === 'checkbox') {
+      const checked = (e.target as HTMLInputElement).checked;
+      setFormData(prev => ({ ...prev, [name]: checked }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!isAuthenticated || !token) {
+      setError('Please login to create a post');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError('');
+
+    try {
+      const postData = {
+        title: formData.title,
+        description: formData.description,
+        category: formData.category,
+        goalGLM: formData.goalGLM ? parseInt(formData.goalGLM) : undefined,
+        acceptContracts: formData.acceptContracts
+      };
+
+      const result = await apiClient.createPost(token, postData);
+      
+      // Redirect to the new post
+      router.push(`/posts/${result.id}`);
+    } catch (err: any) {
+      setError(err.message || 'Failed to create post');
+      setIsSubmitting(false);
+    }
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '40px 20px', textAlign: 'center' }}>
+        <p style={{ fontSize: '20px', color: '#6b7280' }}>Please login to create a post</p>
+      </div>
+    );
+  }
 
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '40px 20px' }}>
@@ -26,6 +89,19 @@ export default function CreatePostPage() {
           Share your funding request with the community
         </p>
       </div>
+
+      {error && (
+        <div style={{ 
+          background: '#fee2e2', 
+          border: '1px solid #fecaca', 
+          borderRadius: '8px', 
+          padding: '20px', 
+          marginBottom: '20px',
+          color: '#991b1b'
+        }}>
+          ❌ {error}
+        </div>
+      )}
       
       <form onSubmit={handleSubmit}>
         <div style={{ 
@@ -41,9 +117,12 @@ export default function CreatePostPage() {
             </label>
             <input
               type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              name="title"
+              value={formData.title}
+              onChange={handleChange}
               required
+              minLength={5}
+              maxLength={100}
               style={{
                 width: '100%',
                 padding: '10px',
@@ -60,9 +139,12 @@ export default function CreatePostPage() {
               Description *
             </label>
             <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
               required
+              minLength={20}
+              maxLength={5000}
               rows={6}
               style={{
                 width: '100%',
@@ -74,6 +156,9 @@ export default function CreatePostPage() {
               }}
               placeholder="Tell your story and why you need help..."
             />
+            <div style={{ fontSize: '12px', color: '#9ca3af', marginTop: '4px', textAlign: 'right' }}>
+              {formData.description.length} / 5000 characters
+            </div>
           </div>
 
           <div style={{ marginBottom: '20px' }}>
@@ -81,8 +166,9 @@ export default function CreatePostPage() {
               Category *
             </label>
             <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
+              name="category"
+              value={formData.category}
+              onChange={handleChange}
               required
               style={{
                 width: '100%',
@@ -93,7 +179,7 @@ export default function CreatePostPage() {
               }}
             >
               {categories.map(cat => (
-                <option key={cat} value={cat}>{cat}</option>
+                <option key={cat.value} value={cat.value}>{cat.label}</option>
               ))}
             </select>
           </div>
@@ -104,8 +190,11 @@ export default function CreatePostPage() {
             </label>
             <input
               type="number"
-              value={goal}
-              onChange={(e) => setGoal(e.target.value)}
+              name="goalGLM"
+              value={formData.goalGLM}
+              onChange={handleChange}
+              min="1"
+              max="1000000"
               style={{
                 width: '100%',
                 padding: '10px',
@@ -115,42 +204,70 @@ export default function CreatePostPage() {
               }}
               placeholder="e.g., 5000"
             />
+            <div style={{ fontSize: '12px', color: '#9ca3af', marginTop: '4px' }}>
+              Optional - Set a target amount for your request
+            </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
+          <div style={{ display: 'flex', alignItems: 'start', marginBottom: '20px' }}>
             <input
               type="checkbox"
               id="acceptContracts"
-              checked={acceptContracts}
-              onChange={(e) => setAcceptContracts(e.target.checked)}
-              style={{ marginRight: '10px' }}
+              name="acceptContracts"
+              checked={formData.acceptContracts}
+              onChange={handleChange}
+              style={{ 
+                marginRight: '10px', 
+                marginTop: '4px',
+                width: '18px',
+                height: '18px',
+                cursor: 'pointer'
+              }}
             />
-            <label htmlFor="acceptContracts" style={{ color: '#374151' }}>
-              Accept contract pledges (with terms)
+            <label htmlFor="acceptContracts" style={{ color: '#374151', flex: 1, cursor: 'pointer' }}>
+              <strong>Accept contract pledges (with terms)</strong>
+              <div style={{ fontSize: '14px', color: '#6b7280', marginTop: '4px' }}>
+                Allow contributors to make contract-backed pledges with custom repayment terms
+              </div>
             </label>
+          </div>
+
+          <div style={{ 
+            background: '#fef3c7', 
+            border: '1px solid #fde047', 
+            borderRadius: '8px', 
+            padding: '15px',
+            marginTop: '20px'
+          }}>
+            <p style={{ color: '#92400e', fontSize: '14px' }}>
+              ⚠️ <strong>Reminder:</strong> This is a simulated currency platform for demo purposes. 
+              No real money will be exchanged.
+            </p>
           </div>
         </div>
 
         <div style={{ display: 'flex', gap: '15px' }}>
           <button
             type="submit"
+            disabled={isSubmitting}
             style={{
               flex: 1,
               padding: '14px',
-              background: '#2563eb',
+              background: isSubmitting ? '#9ca3af' : '#2563eb',
               color: 'white',
               border: 'none',
               borderRadius: '8px',
               fontSize: '16px',
               fontWeight: 'bold',
-              cursor: 'pointer'
+              cursor: isSubmitting ? 'not-allowed' : 'pointer'
             }}
           >
-            Create Post
+            {isSubmitting ? 'Creating...' : 'Create Post'}
           </button>
           <button
             type="button"
-            onClick={() => window.history.back()}
+            onClick={() => router.push('/explore')}
+            disabled={isSubmitting}
             style={{
               padding: '14px 30px',
               background: 'white',
@@ -159,7 +276,7 @@ export default function CreatePostPage() {
               borderRadius: '8px',
               fontSize: '16px',
               fontWeight: 'bold',
-              cursor: 'pointer'
+              cursor: isSubmitting ? 'not-allowed' : 'pointer'
             }}
           >
             Cancel
@@ -169,4 +286,3 @@ export default function CreatePostPage() {
     </div>
   );
 }
-

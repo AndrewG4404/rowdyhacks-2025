@@ -6,28 +6,48 @@ export default function Home() {
           🎉 GoLoanMe
         </h1>
         <p style={{ fontSize: '20px', color: '#64748b', marginBottom: '30px' }}>
-          Community Micro-Funding Platform
+          Community Micro-Funding Platform with AI-Powered Contract Terms
         </p>
-        <div style={{ display: 'flex', gap: '15px', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', flexWrap: 'wrap' }}>
           <a href="/explore" style={{ 
             padding: '12px 30px', 
-            background: '#1e40af', 
+            background: '#2563eb', 
             color: 'white', 
             textDecoration: 'none',
             borderRadius: '8px',
             fontWeight: 'bold'
           }}>
-            Explore Campaigns
+            🔍 Explore Posts
           </a>
-          <a href="/test" style={{ 
+          <a href="/posts/new" style={{ 
             padding: '12px 30px', 
-            background: '#ef4444', 
+            background: '#10b981', 
             color: 'white', 
             textDecoration: 'none',
             borderRadius: '8px',
             fontWeight: 'bold'
           }}>
-            Test Page
+            📝 Create Post
+          </a>
+          <a href="/wallet" style={{ 
+            padding: '12px 30px', 
+            background: '#8b5cf6', 
+            color: 'white', 
+            textDecoration: 'none',
+            borderRadius: '8px',
+            fontWeight: 'bold'
+          }}>
+            💳 Wallet
+          </a>
+          <a href="/terms" style={{ 
+            padding: '12px 30px', 
+            background: '#f59e0b', 
+            color: 'white', 
+            textDecoration: 'none',
+            borderRadius: '8px',
+            fontWeight: 'bold'
+          }}>
+            📜 My Terms
           </a>
         </div>
       </div>
@@ -76,6 +96,22 @@ export default function Home() {
             Check your GLM balance and transactions
           </p>
           <a href="/wallet" style={{ color: '#1e40af', textDecoration: 'underline' }}>View →</a>
+        </div>
+
+        <div style={{ padding: '30px', background: 'white', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+          <h3 style={{ fontSize: '24px', marginBottom: '15px' }}>📜 Create Terms</h3>
+          <p style={{ color: '#64748b', marginBottom: '20px' }}>
+            Generate AI-powered contract templates
+          </p>
+          <a href="/terms" style={{ color: '#1e40af', textDecoration: 'underline' }}>Start →</a>
+        </div>
+
+        <div style={{ padding: '30px', background: 'white', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+          <h3 style={{ fontSize: '24px', marginBottom: '15px' }}>🛡️ Admin</h3>
+          <p style={{ color: '#64748b', marginBottom: '20px' }}>
+            Verify sponsors and moderate content
+          </p>
+          <a href="/admin" style={{ color: '#1e40af', textDecoration: 'underline' }}>Access →</a>
         </div>
       </div>
     </div>
