@@ -124,6 +124,7 @@ model TermsTemplate {
   inputs     Json // TermsInputs as JSON
   llmVersion String
   html       String
+  summary    String? // User-friendly summary of terms (nullable for backward compatibility)
   pdfUrl     String?
   createdAt  DateTime @default(now())
 

@@ -171,6 +171,14 @@ class ApiClient {
     });
   }
 
+  async generateTermsSummary(token: string, data: any) {
+    return this.request('/api/terms/summary', {
+      method: 'POST',
+      token,
+      body: JSON.stringify(data),
+    });
+  }
+
   // Wallet
   async getWallet(token: string) {
     return this.request('/api/wallet', { token });
