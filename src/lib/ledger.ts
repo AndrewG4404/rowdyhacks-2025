@@ -258,6 +258,119 @@ export async function getLedgerEntries(
 }
 
 /**
+ * Create transfer between accounts (for admin/dev tool)
+ */
+export async function createTransfer(
+  fromAccountId: string,
+  toAccountId: string,
+  amountGLM: number,
+  note: string,
+  actorId: string
+): Promise<Array<{ id: string; accountId: string; direction: string; amountGLM: number; refType: string; refId: string; createdAt: Date }>> {
+  if (amountGLM <= 0) {
+    throw new Error('Transfer amount must be positive');
+  }
+
+  // Generate a unique reference ID for this transfer
+  const transferId = crypto.randomUUID();
+
+  // Use existing transferGLM function for atomic transaction
+  const result = await transferGLM(
+    fromAccountId,
+    toAccountId,
+    amountGLM,
+    'transfer',
+    transferId
+  );
+
+  // Return the created ledger entries
+  const entries = await db.ledgerEntry.findMany({
+    where: {
+      refId: transferId,
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+
+  return entries.map(entry => ({
+    id: entry.id,
+    accountId: entry.accountId,
+    direction: entry.direction,
+    amountGLM: entry.amountGLM,
+    refType: entry.refType,
+    refId: entry.refId,
+    createdAt: entry.createdAt,
+  }));
+}
+
+/**
+ * Get post funding stats
+ */
+export async function getPostStats(postId: string) {
+  const pledges = await db.pledge.findMany({
+    where: { postId },
+    include: {
+      pledger: true,
+    },
+  });
+
+  const fundedGLM = pledges.reduce((sum, p) => sum + p.amountGLM, 0);
+  const donors = new Set(
+    pledges.filter((p) => p.type === 'donation').map((p) => p.pledgerId)
+  ).size;
+  const sponsors = new Set(
+    pledges.filter((p) => p.type === 'contract').map((p) => p.pledgerId)
+  ).size;
+
+  return {
+    fundedGLM,
+    donors,
+    sponsors,
+  };
+}
+
+/**
+ * Create repayment transfer (post owner -> sponsor)
+ */
+export async function createRepayment(
+  fromUserId: string,
+  toUserId: string,
+  amountGLM: number,
+  note: string
+): Promise<Array<{ id: string; accountId: string; direction: string; amountGLM: number; refType: string; refId: string; createdAt: Date }>> {
+  if (amountGLM <= 0) {
+    throw new Error('Repayment amount must be positive');
+  }
+
+  // Generate a unique reference ID for this repayment
+  const repaymentId = crypto.randomUUID();
+
+  // Use existing processRepayment function for atomic transaction
+  await processRepayment(fromUserId, toUserId, amountGLM, repaymentId);
+
+  // Return the created ledger entries
+  const entries = await db.ledgerEntry.findMany({
+    where: {
+      refId: repaymentId,
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+
+  return entries.map(entry => ({
+    id: entry.id,
+    accountId: entry.accountId,
+    direction: entry.direction,
+    amountGLM: entry.amountGLM,
+    refType: entry.refType,
+    refId: entry.refId,
+    createdAt: entry.createdAt,
+  }));
+}
+
+/**
  * Get post funding stats
  */
 export async function getPostStats(postId: string) {

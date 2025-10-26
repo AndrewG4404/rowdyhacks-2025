@@ -67,9 +67,16 @@ export async function GET(req: NextRequest) {
       };
     });
 
+    // Add request ID header for tracing
+    const requestId = req.headers.get('x-request-id') || crypto.randomUUID();
+
     return NextResponse.json({
       items: itemsWithStats,
       nextCursor: hasMore ? items[items.length - 1]?.id : null,
+    }, {
+      headers: {
+        'X-Request-Id': requestId,
+      },
     });
   } catch (error) {
     console.error('GET /api/posts error:', error);
@@ -105,6 +112,9 @@ export async function POST(req: NextRequest) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { email, auth0_sub, ...ownerPublic } = post.owner;
 
+    // Add request ID header for tracing
+    const requestId = req.headers.get('x-request-id') || crypto.randomUUID();
+
     return NextResponse.json(
       {
         ...post,
@@ -117,7 +127,12 @@ export async function POST(req: NextRequest) {
         },
         stats: { fundedGLM: 0, donors: 0, sponsors: 0 },
       },
-      { status: 201 }
+      { 
+        status: 201,
+        headers: {
+          'X-Request-Id': requestId,
+        },
+      }
     );
   } catch (error: unknown) {
     console.error('POST /api/posts error:', error);
