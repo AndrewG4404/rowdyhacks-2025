@@ -264,8 +264,8 @@ export async function createTransfer(
   fromAccountId: string,
   toAccountId: string,
   amountGLM: number,
-  note: string,
-  actorId: string
+  _note: string,
+  _actorId: string
 ): Promise<Array<{ id: string; accountId: string; direction: string; amountGLM: number; refType: string; refId: string; createdAt: Date }>> {
   if (amountGLM <= 0) {
     throw new Error('Transfer amount must be positive');
@@ -275,7 +275,7 @@ export async function createTransfer(
   const transferId = crypto.randomUUID();
 
   // Use existing transferGLM function for atomic transaction
-  const result = await transferGLM(
+  await transferGLM(
     fromAccountId,
     toAccountId,
     amountGLM,
@@ -311,7 +311,7 @@ export async function createRepayment(
   fromUserId: string,
   toUserId: string,
   amountGLM: number,
-  note: string
+  _note: string
 ): Promise<Array<{ id: string; accountId: string; direction: string; amountGLM: number; refType: string; refId: string; createdAt: Date }>> {
   if (amountGLM <= 0) {
     throw new Error('Repayment amount must be positive');

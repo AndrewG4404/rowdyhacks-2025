@@ -9,23 +9,39 @@ import type { JWTPayload, AuthenticatedRequest } from '@/types';
 // Environment variables
 const AUTH0_DOMAIN = process.env.AUTH0_DOMAIN;
 const AUTH0_AUDIENCE = process.env.AUTH0_AUDIENCE;
-const AUTH0_ISSUER = process.env.AUTH0_ISSUER || `https://${AUTH0_DOMAIN}/`;
+const AUTH0_ISSUER = process.env.AUTH0_ISSUER || (AUTH0_DOMAIN ? `https://${AUTH0_DOMAIN}/` : undefined);
 
 if (!AUTH0_DOMAIN || !AUTH0_AUDIENCE) {
-  console.warn('⚠️ Auth0 environment variables not configured');
+  console.warn('⚠️ Auth0 environment variables not configured - JWT validation will fail');
 }
 
-// JWKS endpoint for Auth0 public keys
-const JWKS = createRemoteJWKSet(
-  new URL(`https://${AUTH0_DOMAIN}/.well-known/jwks.json`)
-);
+// JWKS endpoint for Auth0 public keys (lazy initialization to avoid errors when env vars are missing)
+let JWKS: ReturnType<typeof createRemoteJWKSet> | null = null;
+
+function getJWKS() {
+  if (!JWKS && AUTH0_DOMAIN) {
+    JWKS = createRemoteJWKSet(
+      new URL(`https://${AUTH0_DOMAIN}/.well-known/jwks.json`)
+    );
+  }
+  return JWKS;
+}
 
 /**
  * Validates JWT token from Authorization header
  */
 export async function validateToken(token: string): Promise<JWTPayload> {
   try {
-    const { payload } = await jwtVerify(token, JWKS, {
+    const jwks = getJWKS();
+    if (!jwks) {
+      throw new Error('Auth0 not configured - JWKS unavailable');
+    }
+
+    if (!AUTH0_AUDIENCE || !AUTH0_ISSUER) {
+      throw new Error('Auth0 not configured - missing audience or issuer');
+    }
+
+    const { payload } = await jwtVerify(token, jwks, {
       audience: AUTH0_AUDIENCE,
       issuer: AUTH0_ISSUER,
     });
@@ -58,6 +74,12 @@ export async function authenticateRequest(
     throw new Error('Missing bearer token');
   }
 
+  // Handle demo tokens for development
+  if (token.startsWith('demo-token-')) {
+    const auth0_sub = token.replace('demo-token-', '');
+    return await getOrCreateDemoUser(auth0_sub);
+  }
+
   // Validate JWT
   const payload = await validateToken(token);
 
@@ -65,6 +87,49 @@ export async function authenticateRequest(
   const user = await getOrCreateUser(payload);
 
   return user;
+}
+
+/**
+ * Get or create demo user for development
+ */
+async function getOrCreateDemoUser(auth0_sub: string): Promise<AuthenticatedRequest['user']> {
+  let user = await db.user.findUnique({
+    where: { auth0_sub },
+  });
+
+  if (!user) {
+    // Create demo user
+    const email = `${auth0_sub}@demo.local`;
+    const handle = generateHandle(email);
+    
+    user = await db.user.create({
+      data: {
+        auth0_sub,
+        email,
+        handle,
+        locale: 'en',
+      },
+    });
+
+    // Create user account for GLM credits
+    await db.account.create({
+      data: {
+        ownerType: 'user',
+        ownerId: user.id,
+        balanceGLM: 1000, // Starting balance for demo
+      },
+    });
+
+    console.log(`✅ Created demo user: ${user.handle} (${user.id})`);
+  }
+
+  return {
+    id: user.id,
+    auth0_sub: user.auth0_sub,
+    email: user.email,
+    handle: user.handle,
+    locale: user.locale,
+  };
 }
 
 /**

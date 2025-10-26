@@ -6,9 +6,13 @@ import { authenticateRequest } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { validateBody, validateQuery, createPostSchema, postFiltersSchema } from '@/lib/validations';
 import { getOrCreateAccount } from '@/lib/ledger';
+import { bootstrapSeedIfNeeded } from '@/lib/bootstrap-seed';
 
 export async function GET(req: NextRequest) {
   try {
+    // Bootstrap seed demo data if database is empty
+    await bootstrapSeedIfNeeded();
+
     const searchParams = req.nextUrl.searchParams;
     const { limit, cursor, q, category, status } = validateQuery(searchParams, postFiltersSchema);
 
@@ -89,7 +93,10 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    // Check authentication first (before consuming request body)
     const user = await authenticateRequest(req);
+    
+    // Then validate body
     const data = await validateBody(req, createPostSchema);
 
     const post = await db.post.create({
@@ -137,7 +144,12 @@ export async function POST(req: NextRequest) {
   } catch (error: unknown) {
     console.error('POST /api/posts error:', error);
 
-    if (error instanceof Error && error.message.includes('Authentication required')) {
+    if (error instanceof Error && (
+      error.message.includes('Authentication required') ||
+      error.message.includes('Missing or invalid Authorization header') ||
+      error.message.includes('Missing bearer token') ||
+      error.message.includes('Invalid or expired token')
+    )) {
       return NextResponse.json(
         { error: { code: 'UNAUTHORIZED', message: 'Authentication required' } },
         { status: 401 }

@@ -76,6 +76,9 @@ export type PostWithOwner = Post & {
   stats?: PostStats;
 };
 
+// Export Post from Prisma for component usage
+export type { Post } from '@prisma/client';
+
 // Extended Post type with additional frontend properties
 export type PostExtended = Post & {
   owner?: UserPublic;

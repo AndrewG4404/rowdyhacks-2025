@@ -3,12 +3,16 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { bootstrapSeedIfNeeded } from '@/lib/bootstrap-seed';
 
 export async function GET(
   req: NextRequest,
   { params }: { params: { handle: string } }
 ) {
   try {
+    // Bootstrap seed demo data if database is empty
+    await bootstrapSeedIfNeeded();
+
     const { handle } = params;
 
     // Validate handle format (3-30 chars, alphanumeric + underscore/dash)

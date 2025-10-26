@@ -2,35 +2,34 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { apiClient, ApiError } from './api-client';
-
-// Mock token for development (replace with Auth0 in production)
-const MOCK_TOKEN = 'dev_token_12345';
+import { useUser } from '@auth0/nextjs-auth0/client';
+import { apiClient } from './api-client';
 
 export function useAuth() {
-  // TODO: Replace with Auth0 useAuth hook
-  const [token, setToken] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [user, setUser] = useState<any>(null);
+  const { user, isLoading: auth0Loading } = useUser();
+  const [accessToken, setAccessToken] = useState<string | null>(null);
 
+  // Get access token from Auth0
   useEffect(() => {
-    // Mock auth for development
-    setToken(MOCK_TOKEN);
-    setIsLoading(false);
-  }, []);
+    if (user) {
+      // For demo purposes, we'll use a mock token
+      // In production, you'd fetch the actual Access Token from Auth0
+      setAccessToken('demo-token-' + user.sub);
+    } else {
+      setAccessToken(null);
+    }
+  }, [user]);
 
   return {
-    token,
-    isAuthenticated: !!token,
-    isLoading,
+    token: accessToken,
+    isAuthenticated: !!user,
+    isLoading: auth0Loading,
     user,
     login: () => {
-      // TODO: Implement Auth0 login
-      setToken(MOCK_TOKEN);
+      window.location.href = '/api/auth/login';
     },
     logout: () => {
-      // TODO: Implement Auth0 logout
-      setToken(null);
+      window.location.href = '/api/auth/logout';
     },
   };
 }
@@ -86,6 +85,8 @@ export function usePost(id: string | null) {
     let mounted = true;
 
     async function fetchPost() {
+      if (!id) return;
+      
       try {
         setIsLoading(true);
         const result = await apiClient.getPost(id);
@@ -111,7 +112,18 @@ export function usePost(id: string | null) {
     };
   }, [id]);
 
-  return { data, isLoading, error, refetch: () => {} };
+  const refetch = () => {
+    if (id) {
+      apiClient.getPost(id).then(result => {
+        setData(result);
+        setError(null);
+      }).catch(err => {
+        setError(err);
+      });
+    }
+  };
+
+  return { data, isLoading, error, refetch };
 }
 
 export function useWallet() {
@@ -129,6 +141,8 @@ export function useWallet() {
     let mounted = true;
 
     async function fetchWallet() {
+      if (!token) return;
+      
       try {
         setIsLoading(true);
         const result = await apiClient.getWallet(token);
@@ -172,6 +186,8 @@ export function useMyTerms() {
     let mounted = true;
 
     async function fetchTerms() {
+      if (!token) return;
+      
       try {
         setIsLoading(true);
         const result = await apiClient.getMyTerms(token);
@@ -215,6 +231,8 @@ export function useTransactions() {
     let mounted = true;
 
     async function fetchTransactions() {
+      if (!token) return;
+      
       try {
         setIsLoading(true);
         const result = await apiClient.getTransactions(token);
@@ -242,4 +260,3 @@ export function useTransactions() {
 
   return { data, isLoading, error };
 }
-

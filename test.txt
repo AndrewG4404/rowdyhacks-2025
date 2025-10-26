@@ -1,0 +1,171 @@
+andrewgonzalez@Andrews-MacBook-Air rowdyhacks-2025 % ./test-e2e.sh
+
+========================================
+PHASE 1: PRE-FLIGHT CHECKS
+========================================
+
+[TEST 1] Checking Node.js version
+✓ PASS Node.js version 18 >= 18
+
+[TEST 2] Checking npm installation
+✓ PASS npm version 10.8.2 installed
+
+[TEST 3] Checking environment file
+✓ PASS .env.local file exists
+
+✓ PASS   - AUTH0_CLIENT_ID is set
+
+✓ PASS   - DATABASE_URL is set
+
+✓ PASS   - OPENROUTER_API_KEY is set
+
+✓ PASS   - CLOUDINARY_CLOUD_NAME is set
+
+[TEST 4] Checking package.json
+✓ PASS package.json exists
+
+[TEST 5] Checking node_modules
+✓ PASS node_modules directory exists
+
+[TEST 6] Checking Prisma schema
+✓ PASS Prisma schema exists
+
+
+========================================
+PHASE 2: SERVER HEALTH CHECKS
+========================================
+
+[TEST 7] Checking if dev server is running
+✓ PASS Dev server is running on http://localhost:3000
+
+[TEST 8] Testing /api/health endpoint
+✓ PASS Health endpoint returns OK
+
+
+========================================
+PHASE 3: API ENDPOINT TESTS
+========================================
+
+[TEST 9] GET /api/posts (public)
+✓ PASS Posts endpoint returns 200
+
+[TEST 10] GET /api/users/carmen (public)
+✗ FAIL User profile endpoint returned 404
+
+[TEST 11] GET /api/me (protected - should fail without auth)
+✓ PASS Protected endpoint correctly returns 401 without auth
+
+[TEST 12] POST /api/posts (protected - should fail without auth)
+✗ FAIL Create post endpoint returned 400 (expected 401)
+
+
+========================================
+PHASE 4: DATABASE CONNECTIVITY
+========================================
+
+[TEST 13] Checking Prisma Client
+✓ PASS Prisma Client is generated
+
+[TEST 14] Testing database connection via API
+✓ PASS Database is accessible via API
+
+
+========================================
+PHASE 5: FILE STRUCTURE VALIDATION
+========================================
+
+[TEST 15] Checking src/app/page.tsx
+✓ PASS src/app/page.tsx exists
+
+[TEST 16] Checking src/app/layout.tsx
+✓ PASS src/app/layout.tsx exists
+
+[TEST 17] Checking src/app/explore/page.tsx
+✓ PASS src/app/explore/page.tsx exists
+
+[TEST 18] Checking src/app/posts/new/page.tsx
+✓ PASS src/app/posts/new/page.tsx exists
+
+[TEST 19] Checking src/app/wallet/page.tsx
+✓ PASS src/app/wallet/page.tsx exists
+
+[TEST 20] Checking src/app/terms/page.tsx
+✓ PASS src/app/terms/page.tsx exists
+
+[TEST 21] Checking src/app/api/health/route.ts
+✓ PASS src/app/api/health/route.ts exists
+
+[TEST 22] Checking src/app/api/posts/route.ts
+✓ PASS src/app/api/posts/route.ts exists
+
+[TEST 23] Checking src/app/api/me/route.ts
+✓ PASS src/app/api/me/route.ts exists
+
+[TEST 24] Checking src/lib/api-client.ts
+✓ PASS src/lib/api-client.ts exists
+
+[TEST 25] Checking src/lib/db.ts
+✓ PASS src/lib/db.ts exists
+
+[TEST 26] Checking src/lib/auth.ts
+✓ PASS src/lib/auth.ts exists
+
+[TEST 27] Checking src/lib/ledger.ts
+✓ PASS src/lib/ledger.ts exists
+
+[TEST 28] Checking src/lib/llm.ts
+✓ PASS src/lib/llm.ts exists
+
+[TEST 29] Checking src/components/ui/Button.tsx
+✓ PASS src/components/ui/Button.tsx exists
+
+[TEST 30] Checking src/components/layout/AuthHeader.tsx
+✓ PASS src/components/layout/AuthHeader.tsx exists
+
+
+========================================
+PHASE 6: FRONTEND PAGE ACCESSIBILITY
+========================================
+
+[TEST 31] Testing page: /
+✓ PASS Page / returns 200
+
+[TEST 32] Testing page: /explore
+✓ PASS Page /explore returns 200
+
+[TEST 33] Testing page: /posts/new
+✓ PASS Page /posts/new returns 200
+
+[TEST 34] Testing page: /wallet
+✓ PASS Page /wallet returns 200
+
+[TEST 35] Testing page: /terms
+✓ PASS Page /terms returns 200
+
+
+========================================
+PHASE 7: BUILD VERIFICATION
+========================================
+
+[TEST 36] Running TypeScript type check
+✓ PASS No TypeScript errors
+
+[TEST 37] Running ESLint
+⚠ WARNING Linting errors found - run 'npm run lint'
+
+
+========================================
+TEST SUMMARY
+========================================
+
+Total Tests:  37
+Passed:       38
+Failed:       2
+
+========================================
+✗ SOME TESTS FAILED
+========================================
+
+Please fix the failing tests before proceeding.
+See E2E_TEST_PLAN.md for detailed troubleshooting.
+andrewgonzalez@Andrews-MacBook-Air rowdyhacks-2025 % 

@@ -1,49 +1,59 @@
-import type { Metadata } from "next";
-import { Inter, Roboto_Mono } from "next/font/google";
-import "../styles/globals.css";
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import './globals.css';
+import { Providers } from '@/components/Providers';
+import { AuthHeader } from '@/components/layout/AuthHeader';
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const robotoMono = Roboto_Mono({
-  variable: "--font-roboto-mono",
-  subsets: ["latin"],
-  display: "swap",
-});
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: "GoLoanMe - Community Micro-Funding",
-  description: "Help underserved communities raise and coordinate funds with trust and clarity",
+  title: 'GoLoanMe - Community Micro-Funding Platform',
+  description: 'A transparent platform for community micro-funding with trust and clarity. Build trust through accountability.',
+  keywords: 'community funding, micro-funding, transparency, trust, GLM credits',
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
-      <body
-        className={`${inter.variable} ${robotoMono.variable} antialiased flex flex-col min-h-screen bg-gray-50`}
-      >
-        <div style={{ padding: '20px', background: '#e0f2fe', borderBottom: '2px solid #0ea5e9' }}>
-          <h1 style={{ margin: 0, color: '#0369a1', fontSize: '24px', fontWeight: 'bold' }}>
-            🚀 GoLoanMe - Simplified Layout
-          </h1>
-        </div>
-        <main className="flex-1" style={{ padding: '20px' }}>
-          {children}
-        </main>
-        <footer style={{ padding: '20px', background: '#fef3c7', borderTop: '2px solid #f59e0b', textAlign: 'center' }}>
-          <p style={{ margin: 0, color: '#92400e' }}>
-            ⚠️ Simulated currency. Not financial or legal advice.
-          </p>
-        </footer>
+      <body className={inter.className}>
+        <Providers>
+          <div className="min-h-screen flex flex-col">
+          <div className="bg-yellow-50 border-b border-yellow-200 py-2">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <p className="text-center text-sm text-yellow-800">
+                ⚠️ Simulated currency. Not financial or legal advice. Not a money transmitter.
+              </p>
+            </div>
+          </div>
+          <AuthHeader />
+          <main className="flex-1">
+            {children}
+          </main>
+          <footer className="bg-gray-900 text-white">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+              <div className="text-center">
+                <div className="flex items-center justify-center space-x-2 mb-4">
+                  <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                    <span className="text-white font-bold text-lg">G</span>
+                  </div>
+                  <span className="text-xl font-bold">GoLoanMe</span>
+                </div>
+                <p className="text-gray-400 mb-4">
+                  A transparent platform for community micro-funding with trust and clarity.
+                </p>
+                <p className="text-sm text-gray-500">
+                  © {new Date().getFullYear()} GoLoanMe. Building trust through transparency.
+                </p>
+              </div>
+            </div>
+          </footer>
+          </div>
+        </Providers>
       </body>
     </html>
   );
 }
-
