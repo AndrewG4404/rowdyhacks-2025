@@ -1,0 +1,296 @@
+// GoLoanMe - Prisma Schema for MongoDB
+// Simulated GLM credit ledger system
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum Locale {
+  en
+  es
+}
+
+enum Category {
+  medical
+  funeral
+  fun
+  vet
+  education
+  community
+  other
+}
+
+enum PostStatus {
+  open
+  closed
+}
+
+enum PledgeType {
+  donation
+  contract
+}
+
+enum LedgerDirection {
+  credit
+  debit
+}
+
+enum LedgerRefType {
+  pledge
+  transfer
+  repayment
+}
+
+enum OwnerType {
+  user
+  post
+}
+
+enum ReportTargetType {
+  post
+  comment
+  user
+}
+
+enum ReportStatus {
+  pending
+  reviewed
+  dismissed
+}
+
+enum Cadence {
+  weekly
+  biweekly
+  monthly
+  quarterly
+}
+
+// ============================================
+// CORE MODELS
+// ============================================
+
+model User {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  auth0_sub String   @unique
+  email     String   @unique
+  handle    String   @unique
+  bio       String?
+  avatarUrl String?
+  locale    Locale   @default(en)
+  interests String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  sponsor         SponsorProfile?
+  posts           Post[]
+  pledges         Pledge[]
+  termsTemplates  TermsTemplate[]
+  circles         Circle[]
+  comments        Comment[]
+  mentionsAuthored Mention[]      @relation("MentionAuthor")
+  mentionsTargeted Mention[]      @relation("MentionTarget")
+  reports         Report[]
+  auditLogs       AuditLog[]
+
+  @@map("users")
+}
+
+model SponsorProfile {
+  id       String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId   String  @unique @db.ObjectId
+  verified Boolean @default(false)
+  rating   Float?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([verified])
+  @@map("sponsor_profiles")
+}
+
+model TermsTemplate {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String   @db.ObjectId
+  title      String
+  inputs     Json // TermsInputs as JSON
+  llmVersion String
+  html       String
+  pdfUrl     String?
+  createdAt  DateTime @default(now())
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pledges Pledge[]
+
+  @@index([userId])
+  @@index([createdAt])
+  @@map("terms_templates")
+}
+
+model Post {
+  id              String     @id @default(auto()) @map("_id") @db.ObjectId
+  ownerId         String     @db.ObjectId
+  title           String
+  description     String
+  category        Category
+  images          String[]
+  links           String[]
+  acceptContracts Boolean    @default(false)
+  status          PostStatus @default(open)
+  goalGLM         Int?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  owner    User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  pledges  Pledge[]
+  comments Comment[]
+  mentions Mention[]
+  reports  Report[]
+
+  @@index([ownerId])
+  @@index([category])
+  @@index([status])
+  @@index([createdAt])
+  @@map("posts")
+}
+
+model Pledge {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  postId    String     @db.ObjectId
+  pledgerId String     @db.ObjectId
+  type      PledgeType
+  amountGLM Int
+  termsId   String?    @db.ObjectId
+  note      String?
+  createdAt DateTime   @default(now())
+
+  post          Post           @relation(fields: [postId], references: [id], onDelete: Cascade)
+  pledger       User           @relation(fields: [pledgerId], references: [id], onDelete: Cascade)
+  termsTemplate TermsTemplate? @relation(fields: [termsId], references: [id], onDelete: SetNull)
+
+  @@index([postId])
+  @@index([pledgerId])
+  @@index([type])
+  @@index([createdAt])
+  @@map("pledges")
+}
+
+model Account {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  ownerType  OwnerType
+  ownerId    String    @db.ObjectId
+  balanceGLM Int       @default(0)
+
+  ledgerEntries LedgerEntry[]
+
+  @@unique([ownerType, ownerId])
+  @@map("accounts")
+}
+
+model LedgerEntry {
+  id        String          @id @default(auto()) @map("_id") @db.ObjectId
+  accountId String          @db.ObjectId
+  direction LedgerDirection
+  amountGLM Int
+  refType   LedgerRefType
+  refId     String          @db.ObjectId
+  createdAt DateTime        @default(now())
+
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([accountId])
+  @@index([refType, refId])
+  @@index([createdAt])
+  @@map("ledger_entries")
+}
+
+model Circle {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  ownerId   String   @db.ObjectId
+  name      String
+  members   String[] @db.ObjectId // Array of User IDs
+  createdAt DateTime @default(now())
+
+  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@index([ownerId])
+  @@map("circles")
+}
+
+model Mention {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  postId       String   @db.ObjectId
+  authorId     String   @db.ObjectId
+  targetUserId String   @db.ObjectId
+  createdAt    DateTime @default(now())
+
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author User @relation("MentionAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  target User @relation("MentionTarget", fields: [targetUserId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+  @@index([targetUserId])
+  @@index([createdAt])
+  @@map("mentions")
+}
+
+model Comment {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  postId    String   @db.ObjectId
+  authorId  String   @db.ObjectId
+  text      String
+  createdAt DateTime @default(now())
+
+  post    Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author  User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  reports Report[]
+
+  @@index([postId])
+  @@index([authorId])
+  @@index([createdAt])
+  @@map("comments")
+}
+
+model Report {
+  id         String           @id @default(auto()) @map("_id") @db.ObjectId
+  reporterId String           @db.ObjectId
+  targetType ReportTargetType
+  targetId   String           @db.ObjectId
+  reason     String
+  status     ReportStatus     @default(pending)
+  createdAt  DateTime         @default(now())
+
+  reporter User     @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+  post     Post?    @relation(fields: [targetId], references: [id], onDelete: Cascade)
+  comment  Comment? @relation(fields: [targetId], references: [id], onDelete: Cascade)
+
+  @@index([reporterId])
+  @@index([targetType, targetId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("reports")
+}
+
+model AuditLog {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  actorId   String?  @db.ObjectId
+  action    String
+  payload   Json
+  createdAt DateTime @default(now())
+
+  actor User? @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([actorId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+

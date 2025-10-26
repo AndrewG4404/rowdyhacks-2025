@@ -1,0 +1,87 @@
+{
+  "common": {
+    "app_name": "GoLoanMe",
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "close": "Cerrar",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "submit": "Enviar",
+    "search": "Buscar",
+    "filter": "Filtrar"
+  },
+  "nav": {
+    "home": "Inicio",
+    "explore": "Explorar",
+    "create": "Crear Publicación",
+    "wallet": "Cartera",
+    "profile": "Perfil",
+    "circles": "Círculos",
+    "admin": "Admin"
+  },
+  "auth": {
+    "login": "Iniciar Sesión",
+    "logout": "Cerrar Sesión",
+    "signup": "Registrarse",
+    "welcome": "Bienvenido a GoLoanMe"
+  },
+  "categories": {
+    "medical": "Médico",
+    "funeral": "Funeral",
+    "fun": "Diversión",
+    "vet": "Veterinario",
+    "education": "Educación",
+    "community": "Proyectos Comunitarios",
+    "other": "Otro"
+  },
+  "post": {
+    "title": "Título",
+    "description": "Descripción",
+    "category": "Categoría",
+    "goal": "Meta de Fondos",
+    "accept_contracts": "Aceptar compromisos contractuales",
+    "status_open": "Abierto",
+    "status_closed": "Cerrado",
+    "create": "Crear Publicación",
+    "update": "Actualizar Publicación",
+    "delete": "Eliminar Publicación",
+    "funded": "Financiado",
+    "donors": "Donantes",
+    "sponsors": "Patrocinadores"
+  },
+  "pledge": {
+    "donate": "Donar",
+    "contract": "Compromiso Contractual",
+    "amount": "Cantidad (GLM)",
+    "note": "Nota (opcional)",
+    "terms": "Seleccionar Términos",
+    "create": "Crear Compromiso"
+  },
+  "wallet": {
+    "balance": "Saldo",
+    "transactions": "Transacciones",
+    "transfer": "Transferir",
+    "repayment": "Reembolso"
+  },
+  "terms": {
+    "title": "Título del Contrato",
+    "interest": "Tasa de Interés (%)",
+    "cadence": "Calendario de Pagos",
+    "grace_days": "Período de Gracia (días)",
+    "collateral": "Garantía",
+    "remedies": "Remedios",
+    "disclaimers": "Descargos de Responsabilidad",
+    "generate": "Generar Contrato",
+    "my_terms": "Mis Términos"
+  },
+  "legal": {
+    "disclaimer": "⚠️ Moneda simulada. No es asesoramiento financiero o legal. No es un transmisor de dinero.",
+    "educational": "Solo para uso educativo. Sin obligaciones reales."
+  }
+}
+
