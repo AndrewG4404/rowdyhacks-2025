@@ -20,6 +20,7 @@
     "explore": "Explore",
     "create": "Create Post",
     "wallet": "Wallet",
+    "terms": "Terms",
     "profile": "Profile",
     "circles": "Circles",
     "admin": "Admin"
@@ -31,13 +32,13 @@
     "welcome": "Welcome to GoLoanMe"
   },
   "categories": {
-    "medical": "Medical",
-    "funeral": "Funeral",
-    "fun": "For Fun",
-    "vet": "Vet Bills",
-    "education": "Education",
-    "community": "Community Projects",
-    "other": "Other"
+    "Medical": "Medical",
+    "Funeral": "Funeral",
+    "For fun": "For Fun",
+    "Vet bills": "Vet Bills",
+    "Education": "Education",
+    "Community Projects": "Community Projects",
+    "Other": "Other"
   },
   "post": {
     "title": "Title",
@@ -52,7 +53,13 @@
     "delete": "Delete Post",
     "funded": "Funded",
     "donors": "Donors",
-    "sponsors": "Sponsors"
+    "sponsors": "Sponsors",
+    "open": "Open",
+    "closed": "Closed"
+  },
+  "posts": {
+    "noPosts": "No posts found",
+    "createFirst": "Be the first to create a post!"
   },
   "pledge": {
     "donate": "Donate",
@@ -82,6 +89,33 @@
   "legal": {
     "disclaimer": "⚠️ Simulated currency. Not financial or legal advice. Not a money transmitter.",
     "educational": "Educational use only. No real obligations."
+  },
+  "footer": {
+    "disclaimer": "⚠️ Simulated currency. Not financial or legal advice. Not a money transmitter."
+  },
+  "landing": {
+    "hero": {
+      "title": "Empower Your Community",
+      "subtitle": "Raise funds with transparency and trust. Connect sponsors with those who need help.",
+      "cta": "Explore Campaigns",
+      "learnMore": "Learn More"
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "step1": {
+        "title": "Create a Post",
+        "description": "Share your story and funding goal. Set clear expectations for contributors."
+      },
+      "step2": {
+        "title": "Receive Contributions",
+        "description": "Accept donations or contract pledges with custom terms. Track everything transparently."
+      },
+      "step3": {
+        "title": "Stay Accountable",
+        "description": "Use our ledger system to maintain trust and transparency with your community."
+      }
+    },
+    "browseCategories": "Browse by Category"
   }
 }
 
